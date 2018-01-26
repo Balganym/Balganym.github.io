@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Document</title>
+  <link rel="stylesheet" href="progressBar.css">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div id="progressBar">
+    <div class="toolbar">
+    <div class="tools_inner_wrapper">
+      <p class="line">
+        <input type="text" name="value" id="value" class="toolbar_input"/>
+        <span class="toolbar_label">Value</span>
+      </p>
+      <div class="bottom_margin">
+        <label class="switch">
+          <input class="check" type="checkbox" id="animate">
+          <span class="slider round"></span>
+          <span class="toolbar_label_switch toolbar_label">Animate</span>
+        </label>
+      </div>
+      <label class="switch">
+        <input class="check" type="checkbox" id="hide">
+        <span class="slider round"></span>
+        <span class="toolbar_label_switch toolbar_label">Hide</span>
+      </label>
+    </div>
+  </div>
+  </div>
+  <script src="progressBar.js"></script>
+  <script src="my.js"></script>
+  <script type="text/javascript">
+
+    window.onload = function(){
+      var pr = new Progress("progressBar",
+      {
+        size: "big",
+        centered: "yes",
+        value: 12,
+        animated: "",
+        time: 1
+      });
+      var val = document.getElementById("value");
+      val.value = pr.props.value;
+      val.onchange = function(e){
+        pr.setValue(e.target.value);
+      }
+      var hide = document.getElementById("hide");
+      var animate = document.getElementById("animate");
+
+      hide.onchange = function(){
+        hide.checked ? pr.setMod("hidden", "yes")
+          : pr.setMod("hidden", "");
+      }
+
+      animate.onchange = function(){
+        animate.checked ? pr.setMod("animated", "yes")
+          : pr.setMod("animated", "");
+      }
+    }
+  </script>
+</body>
+</html>
+
+
+
+
+
+
+

@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: ProgressBar.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: ProgressBar.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>'use strict'
+/**
+* Circular managable progress bar
+* @author Balganym Tulebayeva
+* @namespace Progress
+* @desc To add the progress bar block into your application:
+* &lt;ul>
+*   &lt;li>include progress.css&lt;/li>
+*   &lt;li>include progressBar.js&lt;/li>
+*   &lt;li>create a div element with some id&lt;/li>
+*&lt;/ul>
+*  Parameters in Progress' constructor are:
+*  &lt;li>{string} id of you div element - myProgress&lt;/li>
+*  &lt;li>{object} properties of your progress bar&lt;/li>
+*  &lt;li> - size: big/normal/small&lt;/li>
+*  &lt;li> - centered: yes/no&lt;/li>
+*  &lt;li> - value: initial value of your bar&lt;/li>
+*  &lt;li> - animated: yes/no &lt;/li>
+*  &lt;li> - time: 2 (animation speed) &lt;/li>
+*  &lt;li> - hidden: yes/no &lt;/li>
+* @example
+* &lt;header>
+*   &lt;link rel="stylesheet" href="progressBar.css">
+* &lt;/header> 
+* &lt;div id="myProgress">&lt;/div>
+* &lt;script src="ProgressBar.js">&lt;/script>
+* &lt;script>
+*  var progress = new Progress("myProgress", {
+*   size: "big",
+*   centered: "yes",
+*   value: 43,
+*   animated: "no"
+*  });
+*&lt;/script>
+*/
+var Progress = function(id, props){
+
+  // building our progress bar
+  this.props = props;
+  this.prevValue = 0;
+  this.half = false;
+  this.block = document.getElementById(id);
+  this.circle = document.createElement('div');
+  this.slice = document.createElement('div');
+  this.bar = document.createElement('div');
+  this.progress = document.createElement('div');
+
+  // it is just for realization of my logic of filling the bar
+  this.transform = function(deg){
+    this.bar.style.webkitTransform = deg;
+    this.bar.style.mozTransform = deg;
+    this.bar.style.msTransform = deg;
+    this.bar.style.oTransform = deg;
+    this.bar.style.transform = deg;
+  }
+
+  // it is just for realization of my logic of filling the bar
+  this.fill = function(value, _this){
+    this.circle.classList.add("bar2");
+    this.progress.classList.add("fill2");
+    var deg = 'rotate(' + (value * 3.6) + 'deg)';
+    this.slice.style.clip = 'rect(auto, auto, auto, auto)';
+    this.transform(deg);
+  }
+
+  // it is just for realization of my logic of filling the bar
+  this.unfill = function(value){
+    var deg = 'rotate(' + (value * 3.6) + 'deg)';
+    this.transform(deg);
+    this.bar.classList.remove("bar2");
+    this.progress.classList.remove("fill2");
+    this.slice.style.clip = '';
+  }
+
+  // adding of classes to our progress bar for writing styles
+  this.block.classList.add("progress");
+  this.circle.classList.add('circle', 'p0');
+  this.slice.className = 'slice';
+  this.bar.className = "bar"
+  this.progress.className = 'fill';
+
+  this.block.insertBefore(this.circle, this.block.childNodes[0]);
+  this.circle.appendChild(this.slice);
+  this.slice.appendChild(this.bar);
+  this.slice.appendChild(this.progress); 
+
+  // managing of our progress bar when its exemplar is created
+  if(this.props !== undefined){
+    if(this.props.centered  !== undefined &amp;&amp; this.props.centered === "yes"){
+      this.circle.classList.add("center");
+    }
+    if(this.props.size !== undefined){
+      this.circle.classList.add(this.props.size);
+    }
+    if(this.props.value !== undefined){
+      this.setValue(this.props.value);
+    }
+    if(this.props.animated !== undefined){
+      this.setMod("animated", this.props.animated);
+    }
+    if(this.props.hidden !== undefined){
+      this.setMod("hidden", this.props.animated);
+    }
+    if(this.props.time === undefined){
+      this.props.time = 1;
+    }
+  }
+  this.bar.style.transition = "transform " + this.props.time + "s ease-out";
+}
+
+/**
+* @function
+* @name setValue
+* @param {int} value - Set the value of bar
+* @desc you can use this method for managing the progress bar
+* @example
+*
+*&lt;div id="bar">
+* &lt;input type="text" id="arc"/>
+*&lt;/div>
+*&lt;script>
+*  var pr = new Progress("bar", {size: normal});
+*  var arc = document.getElementById("arc");
+*   arc.value = pr.props.value;
+*   arc.onchange = function(e){
+*   pr.setValue(e.target.value);
+*  }
+* &lt;/script>
+*/
+Progress.prototype.setValue = function(value) {
+  if(value > 50){
+    if(!this.half){
+      var deg = 'rotate(' + (50 * 3.6) + 'deg)';
+      this.transform(deg);
+      this.half = true;
+      var _this = this;
+      setTimeout(()=>this.fill(value), this.props.time * 1000);
+    }else{
+      this.bar.classList.add("bar2");
+      this.progress.classList.add("fill2");
+      var deg = 'rotate(' + (value * 3.6) + 'deg)';
+      this.slice.style.clip = 'rect(auto, auto, auto, auto)';
+      this.transform(deg);
+    }
+  }
+  else{
+    if(value == 50){
+      this.half = true;
+    }else{
+      this.half = false;
+    }
+    if(this.prevValue > 50){
+      var deg = 'rotate(' + (50.1 * 3.6) + 'deg)';
+      this.transform(deg);
+      setTimeout(()=>this.unfill(value), this.props.time * 1000);
+    }else{
+      var deg = 'rotate(' + (value * 3.6) + 'deg)';
+      this.transform(deg);
+    }
+  }
+  this.prevValue = value;
+};
+
+/**
+* @function
+* @name setMod
+* @param {string} key - animated or hidden
+* @param {string} state - "yes"/"" (animated/not animated, hidden/visible)
+* @desc you can use this method for managing the progress bar:
+* @example
+*&lt;div id="bar">
+* &lt;input type="checkbox" id="hide"/>
+* &lt;input type="checkbox" id="animate"/>
+*&lt;/div>
+*&lt;script>
+*  var pr = new Progress("bar", {size: normal});
+*  var hide = document.getElementById("hide");
+*  hide.onchange = function(){
+*   hide.checked ? pr.setMod("hidden", "yes") : pr.setMod("hidden", "");  
+*  }
+*  var animate = document.getElementById("animate");
+*  animate.onchange = function(){
+*   animate.checked ? pr.setMod("animated", "yes") : pr.setMod("animated", "");  
+*  }
+* &lt;/script>
+*/
+Progress.prototype.setMod = function(key, state){
+  if(key === "animated"){
+    state === "yes" ? this.slice.classList.add(key) 
+    : this.slice.classList.remove(key);
+  }
+  else if(key === "hidden"){
+    state === "yes" ? this.circle.style.display = "none"
+      : this.circle.style.display = "flex";
+  }
+};</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Namespaces</h3><ul><li><a href="Progress.html">Progress</a></li></ul><h3>Global</h3><ul><li><a href="global.html#setMod">setMod</a></li><li><a href="global.html#setValue">setValue</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Fri Jan 26 2018 20:19:19 GMT+0600 (+06)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>
